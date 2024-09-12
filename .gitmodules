@@ -1,0 +1,6 @@
+[submodule "WayBack---frontend"]
+	path = WayBack---frontend
+	url = https://github.com/visargsoneji/WayBack---frontend.git
+[submodule "WayBack---backend"]
+	path = WayBack---backend
+	url = https://github.com/visargsoneji/WayBack---backend.git
