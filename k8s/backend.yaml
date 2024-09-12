@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wayback-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: wayback-backend:latest
+          imagePullPolicy: Never 
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - name: apk-volume
+              mountPath: /Volumes/apks
+          env:
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_USER
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_HOST
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_PORT
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_NAME
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: REDIS_URL
+            - name: ALGORITHM
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: ALGORITHM
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SECRET_KEY
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_PASSWORD
+      volumes:
+        - name: apk-volume
+          hostPath:
+            path: /Volumes/apks # Mount the APK directory from the host node
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8000
+  type: ClusterIP

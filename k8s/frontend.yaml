@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wayback-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: wayback-frontend:1.6-beta-1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+  
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  type: NodePort # Use NodePort to expose it on a specific port on the host
+  ports:
+    - protocol: TCP
+      port: 80      # Port on the service
+      targetPort: 80 # Port on the POD 
+      nodePort: 30080 # Host port where the frontend will be accessible
