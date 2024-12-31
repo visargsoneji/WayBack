@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: wayback-backend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: backend
@@ -14,13 +14,16 @@ spec:
     spec:
       containers:
         - name: backend
-          image: wayback-backend:latest
-          imagePullPolicy: Never 
+          image: visargsoneji/wayback-backend:0.1-es-mp
+          # imagePullPolicy: Never 
           ports:
             - containerPort: 8000
           volumeMounts:
             - name: apk-volume
               mountPath: /Volumes/apks
+            - name: elastic-cert-volume # Add this volume mount
+              mountPath: /certs        # Ensure the path matches your code
+              readOnly: true 
           env:
             - name: DB_USER
               valueFrom:
@@ -52,6 +55,16 @@ spec:
                 configMapKeyRef:
                   name: backend-config
                   key: ALGORITHM
+            - name: ES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: ES_USER
+            - name: ES_INDEX
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: ES_INDEX
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
@@ -62,10 +75,20 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: DB_PASSWORD
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: ES_PASSWORD
+            - name: ELASTIC_CA_CERT_PATH
+              value: "/certs/http_ca.cert"
       volumes:
         - name: apk-volume
           hostPath:
             path: /Volumes/apks # Mount the APK directory from the host node
+        - name: elastic-cert-volume
+          secret:
+            secretName: elastic-cert-secret
 ---
 apiVersion: v1
 kind: Service

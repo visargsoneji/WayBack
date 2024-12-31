@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: wayback-frontend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: frontend
@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: wayback-frontend:1.6-beta-1
-          imagePullPolicy: Never
+          image: visargsoneji/wayback-frontend:0.1-es-mp
+          # imagePullPolicy: Never
           ports:
             - containerPort: 80
   
